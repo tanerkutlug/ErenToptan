@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ürün Aracı</title>
+<style>
+:root{--bg:#fff7f0;--card:#fff;--text:#1f1f1f;--muted:#6b6b6b;--accent:#ff6000;--line:#f0d9c8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17120e;--card:#221b15;--text:#f4ede6;--muted:#a89b8f;--line:#3a2e24}}
+:root[data-theme="dark"]{--bg:#17120e;--card:#221b15;--text:#f4ede6;--muted:#a89b8f;--line:#3a2e24}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px}
+main{max-width:480px;margin:0 auto}
+h1{font-size:22px;margin:8px 0 16px}
+h2{font-size:15px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+input{width:100%;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
+#sku{text-transform:uppercase;font-size:17px}
+button{width:100%;font-size:16px;font-weight:600;padding:14px;border:0;border-radius:10px;margin-top:10px;cursor:pointer}
+.main{background:var(--accent);color:#fff}
+.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.row{display:flex;gap:8px}
+.row>div{flex:1}
+.pricebox{background:var(--bg);border:2px solid var(--accent);border-radius:12px;padding:12px 14px 10px;margin-bottom:6px}
+.pricebox label{margin:0 0 4px;color:var(--accent);font-weight:700;letter-spacing:.5px}
+.pricebox input{font-size:30px;font-weight:700;border:0;padding:4px 0;background:transparent}
+.pricebox input:focus{outline:none}
+.hint{font-size:12px;color:var(--muted);margin-top:2px}
+.res{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.res div{display:flex;justify-content:space-between;padding:5px 0;font-size:15px}
+.res .total{font-weight:700;font-size:17px;border-top:1px solid var(--line);margin-top:4px;padding-top:10px}
+.pos{color:#1e8e3e}.neg{color:#d93025}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.err{color:#d93025;font-size:13px;min-height:18px;margin-top:8px}
+.item{display:flex;gap:8px;margin-bottom:8px}
+.item a{flex:1;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);text-decoration:none;font-size:15px}
+.item button{width:auto;margin:0;padding:0 14px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.sub{font-size:14px;color:var(--muted);margin:14px 0 8px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Ürün Aracı</h1>
+
+  <div class="card">
+    <h2>Kâr hesaplama</h2>
+    <div class="row">
+      <div><label for="cost">Alış maliyeti (₺)</label><input id="cost" type="number" inputmode="decimal" placeholder="0"></div>
+      <div><label for="comm">Komisyon (%)</label><input id="comm" type="number" inputmode="decimal" placeholder="örn. 12"></div>
+    </div>
+    <div class="row">
+      <div><label for="cargo">Kargo ücreti (₺)</label><input id="cargo" type="number" inputmode="decimal" placeholder="0"></div>
+      <div><label for="service">Hizmet ücreti (₺)</label><input id="service" type="number" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <div class="row">
+      <div><label for="intl">Yurtdışı komisyon (%)</label><input id="intl" type="number" inputmode="decimal" placeholder="0"></div>
+      <div><label for="kdv">KDV (%)</label><input id="kdv" type="number" inputmode="decimal" placeholder="örn. 20"></div>
+    </div>
+    <label for="target">Hedef kâr (% maliyete göre)</label>
+    <input id="target" type="number" inputmode="decimal" placeholder="örn. 30">
+    <div class="pricebox" style="margin-top:14px">
+      <label for="price">SATIŞ FİYATI (₺)</label>
+      <input id="price" type="number" inputmode="decimal" placeholder="0,00">
+      <div class="hint">Otomatik gelir. Elle yazarsanız sabit kalır, boş bırakırsanız otomatiğe döner.</div>
+    </div>
+    <div class="res" id="res" hidden>
+      <div><span>Komisyon tutarı</span><span id="r1"></span></div>
+      <div><span>Yurtdışı komisyon tutarı</span><span id="r7"></span></div>
+      <div><span>Ödenecek KDV</span><span id="r8"></span></div>
+      <div><span>Toplam gider</span><span id="r2"></span></div>
+      <div class="total"><span>Net kâr</span><span id="r3"></span></div>
+      <div><span>Kâr marjı (satışa göre)</span><span id="r4"></span></div>
+      <div><span>Maliyete göre kâr</span><span id="r5"></span></div>
+      <div><span>Başa baş satış fiyatı</span><span id="r6"></span></div>
+    </div>
+    <div class="note">Tutarları KDV dahil girin. Yurtdışı komisyon satış fiyatı üzerinden yüzde olarak hesaplanır. KDV girilirse satış KDV'sinden alış KDV'si düşülür ve ödenecek KDV giderlere eklenir (alış maliyeti de aynı oranla KDV dahil kabul edilir).</div>
+  </div>
+
+  <div class="card">
+    <h2>Trendyol'dan barkodla ürün ara</h2>
+    <input id="barcode" inputmode="numeric" placeholder="Barkod numarası" autocomplete="off">
+    <div class="err" id="berr"></div>
+    <button class="main" id="bsearch">Trendyol'da ara</button>
+    <div class="note">13 haneli barkodu yazınca, yapıştırınca ya da Enter'a basınca Trendyol'da otomatik aranır.</div>
+  </div>
+
+  <div class="card">
+    <h2>Hepsiburada SKU ile ürün bul</h2>
+    <input id="sku" placeholder="Örn: HBCV00000ABCDE" autocomplete="off" autocapitalize="characters">
+    <div class="err" id="err"></div>
+    <button class="main" id="open">Ürün sayfasını aç</button>
+    <button class="alt" id="search">Arama sonuçlarında ara</button>
+    <div class="sub" id="htitle" hidden>Son aranan SKU'lar</div>
+    <div id="list"></div>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat(String($(id).value).replace(",","."))||0;
+const tl=n=>n.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺";
+
+/* Kâr hesaplama */
+function calc(){
+  const cost=num("cost"),price=num("price"),r=num("comm")/100,g=num("intl")/100,k=num("kdv")/100/(1+num("kdv")/100);
+  const fixed=num("cargo")+num("service");
+  $("res").hidden=!(price>0);
+  if(!(price>0))return;
+  const comm=price*r,intl=price*g,kdv=Math.max(0,k*(price-cost)),exp=cost+comm+intl+fixed+kdv,profit=price-exp;
+  $("r1").textContent=tl(comm);
+  $("r7").textContent=tl(intl);
+  $("r8").textContent=tl(kdv);
+  $("r2").textContent=tl(exp);
+  $("r3").textContent=tl(profit);
+  $("r3").className=profit>=0?"pos":"neg";
+  $("r4").textContent="%"+(profit/price*100).toFixed(1);
+  $("r5").textContent=cost>0?"%"+(profit/cost*100).toFixed(1):"-";
+  const d=1-r-g-k;
+  $("r6").textContent=d>0?tl((cost*(1-k)+fixed)/d):"-";
+}
+let manual=false; // satış fiyatı elle yazıldıysa otomatik hesap durur
+function autoPrice(){
+  if(manual)return;
+  const cost=num("cost"),t=num("target")/100,k=num("kdv")/100/(1+num("kdv")/100);
+  const d=1-num("comm")/100-num("intl")/100-k;
+  const fixed=num("cargo")+num("service");
+  if(cost>0&&$("comm").value!==""&&d>0){
+    $("price").value=(Math.ceil(((cost*(1+t-k)+fixed)/d)*100)/100).toFixed(2);
+  }else{
+    $("price").value="";
+  }
+}
+["cost","comm","cargo","service","intl","kdv","target"].forEach(id=>$(id).addEventListener("input",()=>{autoPrice();calc()}));
+$("price").addEventListener("input",()=>{manual=$("price").value!=="";if(!manual)autoPrice();calc()});
+
+/* Trendyol barkod arama */
+function tySearch(){
+  const b=$("barcode").value.trim().replace(/\s+/g,"");
+  if(!b){$("berr").textContent="Lütfen bir barkod girin.";return}
+  const e=encodeURIComponent(b);
+  const url="https://www.trendyol.com/sr?q="+e+"&qt="+e+"&st="+e+"&os=1";
+  $("berr").innerHTML="";
+  const a=document.createElement("a");
+  a.href=url;a.target="_blank";a.rel="noopener";a.textContent="Açılmadıysa buraya dokunun →";
+  a.style.color="var(--accent)";
+  $("berr").append(a);
+  window.open(url,"_blank","noopener");
+}
+$("bsearch").onclick=tySearch;
+$("barcode").addEventListener("keydown",e=>{if(e.key==="Enter")tySearch()});
+$("barcode").addEventListener("input",()=>{if(/^\d{13}$/.test($("barcode").value.trim()))tySearch()});
+$("barcode").addEventListener("paste",()=>setTimeout(()=>{if($("barcode").value.trim().length>=8)tySearch()},0));
+
+/* Hepsiburada SKU */
+const KEY="hb_recent";
+const clean=v=>v.trim().replace(/\s+/g,"").toUpperCase();
+const productUrl=s=>"https://www.hepsiburada.com/urun-p-"+encodeURIComponent(s);
+const searchUrl=s=>"https://www.hepsiburada.com/ara?q="+encodeURIComponent(s);
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}}
+function render(){
+  const a=load(),l=$("list");l.innerHTML="";
+  $("htitle").hidden=!a.length;
+  a.forEach(s=>{
+    const d=document.createElement("div");d.className="item";
+    const link=document.createElement("a");link.href=productUrl(s);link.target="_blank";link.rel="noopener";link.textContent=s;
+    const x=document.createElement("button");x.textContent="✕";x.setAttribute("aria-label","Sil");
+    x.onclick=()=>{save(load().filter(i=>i!==s));render()};
+    d.append(link,x);l.append(d);
+  });
+}
+function go(urlFn){
+  const s=clean($("sku").value);
+  if(!s){$("err").textContent="Lütfen bir SKU girin.";return}
+  $("err").textContent="";
+  save([s,...load().filter(i=>i!==s)].slice(0,10));render();
+  window.open(urlFn(s),"_blank","noopener");
+}
+$("open").onclick=()=>go(productUrl);
+$("search").onclick=()=>go(searchUrl);
+$("sku").addEventListener("keydown",e=>{if(e.key==="Enter")go(productUrl)});
+render();
+
+/* Kutuya tıklayınca içini otomatik boşalt */
+document.querySelectorAll("input").forEach(el=>{
+  if(el.id==="barcode"||el.id==="sku")return;
+  el.addEventListener("focus",()=>{
+    if(el.value==="")return;
+    el.value="";
+    if(el.id==="price"){manual=true;calc()}
+    else el.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+});
+$("price").addEventListener("blur",()=>{
+  if($("price").value===""){manual=false;autoPrice();calc()}
+});
+</script>
+</body>
+</html>
